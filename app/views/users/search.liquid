@@ -1,0 +1,81 @@
+<h1>Users</h1>
+
+<div align="right">
+    <h3 ><a href="{{ 'users' | route }}">Back</a></h3>
+</div>
+
+<table style="width:100%">
+  <tr>
+    <th style="text-align: left;">Name</th>
+    <th style="text-align: left;">Age</th>
+    <th style="text-align: left;">Gender</th>
+    <th style="text-align: left;">Created At</th>
+    <th style="text-align: left;">Action</th>
+  </tr>
+  {% for user in users %}
+    <tr>
+      <td>{{ user.name["title"] }} {{user.name["first"] }} {{user.name["last"] }}</td>
+      <td>{{ user.age }}</td>
+      <td>{{ user.gender }}</td>
+      <td>{{ user.created_at }}</td>
+      <td>
+        <a href="#" class="delete-user" data-uuid="{{ user.id }}">Delete</a>
+      </td>
+    </tr>
+  {% endfor %}
+</table>
+
+<script>
+  $(document).ready(function() {
+    $('.delete-user').on('click', function(event) {
+    debugger
+      event.preventDefault();
+      const userUuid = $(this).data('uuid');
+      deleteUser(userUuid);
+    });
+
+    function deleteUser(userId) {
+      // AJAX request to delete user
+      $.ajax({
+        url: `/users/${userId}`,
+        type: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+          console.log('User deleted successfully');
+          location.reload();
+          // You may want to update the UI, e.g., remove the deleted row
+        },
+        error: function(error) {
+          console.error('Failed to delete user');
+        }
+      });
+    }
+    $('#searchButton').on('click', function() {
+      const searchTerm = $('#searchInput').val();
+      searchUsers(searchTerm);
+    });
+
+    function searchUsers(searchTerm) {
+      // AJAX request to search users
+      $.ajax({
+        url: '/users/search',
+        type: 'GET',
+        dataType: 'html',
+        data: { search: searchTerm },
+        success: function(response) {
+          // Handle the response, update the UI with the search results
+          console.log('Search successful:', response);
+          $('#users_details').html(response);
+        },
+        error: function(error) {
+          console.error('Failed to search users');
+          $('#users_details').html(response);
+        }
+      });
+    }
+  });
+
+</script>
